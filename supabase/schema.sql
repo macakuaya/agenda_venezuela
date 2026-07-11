@@ -38,11 +38,19 @@ drop policy if exists "public read events" on public.events;
 create policy "public read events" on public.events
   for select using (true);
 
--- Cualquiera puede crear (sin login). No hay policy de update/delete,
--- asi que anon NO puede editar ni borrar.
+-- Cualquiera puede crear/editar/borrar (opcion "rapida", sin login; el PIN de
+-- /clarisa solo frena en la web). Ver supabase/edit-delete.sql para el detalle.
 drop policy if exists "anyone insert events" on public.events;
 create policy "anyone insert events" on public.events
   for insert with check (true);
+
+drop policy if exists "anyone update events" on public.events;
+create policy "anyone update events" on public.events
+  for update using (true) with check (true);
+
+drop policy if exists "anyone delete events" on public.events;
+create policy "anyone delete events" on public.events
+  for delete using (true);
 
 -- 3) Bucket de imagenes (publico)
 insert into storage.buckets (id, name, public)
@@ -58,3 +66,8 @@ create policy "public read event images" on storage.objects
 drop policy if exists "anyone upload event images" on storage.objects;
 create policy "anyone upload event images" on storage.objects
   for insert with check (bucket_id = 'event-images');
+
+-- Cualquiera puede borrar imagenes del bucket (para limpiar al borrar eventos)
+drop policy if exists "anyone delete event images" on storage.objects;
+create policy "anyone delete event images" on storage.objects
+  for delete using (bucket_id = 'event-images');
