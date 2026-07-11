@@ -16,12 +16,8 @@ export default function EventCard({ event }: Props) {
     ? event.image
     : `${import.meta.env.BASE_URL}${event.image.replace(/^\//, '')}`
 
-  // Meta line: "<fecha> · <lugar> · <ciudad>", omitting whatever is missing.
-  const meta = [
-    formatEventDate(event.startDate, event.endDate, event.allDay),
-    event.venue || event.address,
-    event.city,
-  ]
+  // Location line: "<lugar o calle> · <ciudad>", omitting whatever is missing.
+  const location = [event.venue || event.address, event.city]
     .filter(Boolean)
     .join(' · ')
 
@@ -31,11 +27,11 @@ export default function EventCard({ event }: Props) {
         <img src={imgSrc} alt={event.name} loading="lazy" />
       </div>
       <div className="card__body">
+        <p className="card__date">
+          {formatEventDate(event.startDate, event.endDate, event.allDay)}
+        </p>
         <h2 className="card__title">{event.name}</h2>
-        <p className="card__meta">{meta}</p>
-        {event.beneficiary && (
-          <p className="card__benef">A beneficio de {event.beneficiary}</p>
-        )}
+        {location && <p className="card__loc">{location}</p>}
       </div>
     </>
   )

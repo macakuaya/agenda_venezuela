@@ -109,9 +109,9 @@ export default function DesignSystem() {
                 <img src={`${import.meta.env.BASE_URL}events/mercadillo-ropa.svg`} alt="Ejemplo" />
               </div>
               <div className="card__body">
+                <p className="card__date">Jue, 26 ene · 14:00</p>
                 <h2 className="card__title">Nombre del evento de ejemplo</h2>
-                <p className="card__meta">Jue, 26 ene · 14:00 · Lugar del evento · Barcelona</p>
-                <p className="card__benef">A beneficio de una buena causa</p>
+                <p className="card__loc">Lugar del evento · Barcelona</p>
               </div>
             </a>
             <button className="card__star" aria-pressed="true" aria-label="Guardar evento">

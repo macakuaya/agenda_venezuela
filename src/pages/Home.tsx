@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import Header from '../components/Header'
 import EventCard from '../components/EventCard'
 import { useInterested } from '../hooks/useInterested'
@@ -74,12 +73,6 @@ export default function Home() {
             ))}
           </div>
         )}
-
-        <footer className="footer">
-          <Link to="/design-system" className="footer__link">
-            Design system
-          </Link>
-        </footer>
       </main>
     </div>
   )
