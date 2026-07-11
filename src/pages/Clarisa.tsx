@@ -1,9 +1,18 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { CLARISA_PIN } from '../config'
 import { isSupabaseConfigured } from '../lib/supabase'
-import { createEvent, uploadEventImage, type NewEvent } from '../lib/events'
+import {
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  uploadEventImage,
+  fetchEvents,
+  type NewEvent,
+} from '../lib/events'
 import { resizeImage } from '../lib/image'
+import { formatEventDate } from '../lib/date'
+import type { EventItem } from '../types'
 
 const PIN_KEY = 'agenda-vzla:clarisa-unlocked'
 
@@ -25,7 +34,7 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
     <div className="clarisa clarisa--gate">
       <form className="pin" onSubmit={submit}>
         <h1>Panel de Clarisa</h1>
-        <p className="clarisa__sub">Escribe el PIN para publicar eventos.</p>
+        <p className="clarisa__sub">Escribe el PIN para gestionar eventos.</p>
         <input
           type="password"
           className="input"
@@ -69,28 +78,100 @@ const emptyForm = {
   note: '',
 }
 
+type FormState = typeof emptyForm
 type Status = 'idle' | 'saving' | 'done' | 'error'
+
+// Turns a stored event back into the editable form fields.
+function eventToForm(e: EventItem): FormState {
+  const [sDay, sTime] = e.startDate.split('T')
+  const [eDay, eTime] = (e.endDate ?? '').split('T')
+  return {
+    name: e.name,
+    startDay: sDay ?? '',
+    startTime: sTime ? sTime.slice(0, 5) : '',
+    endDay: eDay ?? '',
+    endTime: eTime ? eTime.slice(0, 5) : '',
+    allDay: !!e.allDay,
+    venue: e.venue ?? '',
+    address: e.address ?? '',
+    city: e.city ?? '',
+    url: e.url ?? '',
+    organizer: e.organizer ?? '',
+    beneficiary: e.beneficiary ?? '',
+    needs: e.needs ?? '',
+    contactPhone: e.contactPhone ?? '',
+    whatsappUrl: e.whatsappUrl ?? '',
+    instagramUrl: e.instagramUrl ?? '',
+    ticketUrl: e.ticketUrl ?? '',
+    website: e.website ?? '',
+    hours: e.hours ?? '',
+    lineup: (e.lineup ?? []).join('\n'),
+    note: e.note ?? '',
+  }
+}
 
 export default function Clarisa() {
   const [unlocked, setUnlocked] = useState(
     () => sessionStorage.getItem(PIN_KEY) === 'true',
   )
-  const [f, setF] = useState({ ...emptyForm })
+  const [f, setF] = useState<FormState>({ ...emptyForm })
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
+  const [events, setEvents] = useState<EventItem[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [existingImage, setExistingImage] = useState<string | undefined>()
+
+  const loadEvents = () => {
+    fetchEvents().then((rows) => rows && setEvents(rows))
+  }
+
+  useEffect(() => {
+    if (unlocked && isSupabaseConfigured) loadEvents()
+  }, [unlocked])
 
   if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />
 
-  const set = (key: keyof typeof emptyForm, value: string | boolean) =>
+  const set = (key: keyof FormState, value: string | boolean) =>
     setF((prev) => ({ ...prev, [key]: value }))
 
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sel = e.target.files?.[0] ?? null
     setFile(sel)
-    setPreview(sel ? URL.createObjectURL(sel) : null)
+    setPreview(sel ? URL.createObjectURL(sel) : existingImage ?? null)
+  }
+
+  const resetForm = () => {
+    setF({ ...emptyForm })
+    setFile(null)
+    setPreview(null)
+    setEditingId(null)
+    setExistingImage(undefined)
+    setDetailsOpen(false)
+  }
+
+  const startEdit = (e: EventItem) => {
+    setF(eventToForm(e))
+    setEditingId(e.id)
+    setExistingImage(e.image || undefined)
+    setPreview(e.image || null)
+    setFile(null)
+    setStatus('idle')
+    setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const remove = async (e: EventItem) => {
+    if (!window.confirm(`¿Borrar "${e.name}"? Esta acción no se puede deshacer.`)) return
+    try {
+      await deleteEvent(e.id, e.image)
+      if (editingId === e.id) resetForm()
+      loadEvents()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'No se pudo borrar.')
+    }
   }
 
   const buildDate = (day: string, time: string) =>
@@ -105,12 +186,12 @@ export default function Clarisa() {
     }
     setStatus('saving')
     try {
-      let image: string | undefined
+      let image = existingImage
       if (file) {
         const blob = await resizeImage(file)
         image = await uploadEventImage(blob)
       }
-      const event: NewEvent = {
+      const payload: NewEvent = {
         name: f.name.trim(),
         startDate: buildDate(f.startDay, f.startTime),
         endDate: f.endDay ? buildDate(f.endDay, f.endTime) : undefined,
@@ -128,18 +209,15 @@ export default function Clarisa() {
         ticketUrl: f.ticketUrl.trim() || undefined,
         website: f.website.trim() || undefined,
         hours: f.hours.trim() || undefined,
-        lineup: f.lineup
-          .split('\n')
-          .map((s) => s.trim())
-          .filter(Boolean),
+        lineup: f.lineup.split('\n').map((s) => s.trim()).filter(Boolean),
         note: f.note.trim() || undefined,
         image,
       }
-      await createEvent(event)
+      if (editingId) await updateEvent(editingId, payload)
+      else await createEvent(payload)
       setStatus('done')
-      setF({ ...emptyForm })
-      setFile(null)
-      setPreview(null)
+      resetForm()
+      loadEvents()
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       setStatus('error')
@@ -147,23 +225,36 @@ export default function Clarisa() {
     }
   }
 
+  const editing = editingId !== null
+
   return (
     <div className="clarisa">
       <Link to="/" className="clarisa__back">← Volver a la agenda</Link>
-      <h1>Publicar un evento</h1>
+      <h1>{editing ? 'Editar evento' : 'Publicar un evento'}</h1>
       <p className="clarisa__sub">
-        Completa los datos y publica. El evento aparecerá al instante en la agenda.
+        {editing
+          ? 'Modifica los datos y guarda los cambios.'
+          : 'Completa los datos y publica. El evento aparecerá al instante en la agenda.'}
       </p>
 
       {!isSupabaseConfigured && (
         <p className="form__error">
           El backend (Supabase) todavía no está configurado, así que aún no se
-          pueden publicar eventos. Avísale a quien administra el sitio.
+          pueden gestionar eventos. Avísale a quien administra el sitio.
         </p>
       )}
 
       {status === 'done' && (
-        <p className="form__ok">¡Evento publicado! 🎉 Ya está en la agenda.</p>
+        <p className="form__ok">¡Guardado! 🎉 Ya está en la agenda.</p>
+      )}
+
+      {editing && (
+        <div className="form__editing">
+          <span>Editando un evento</span>
+          <button type="button" className="btn btn--ghost btn--sm" onClick={resetForm}>
+            Cancelar
+          </button>
+        </div>
       )}
 
       <form className="form" onSubmit={submit}>
@@ -173,7 +264,7 @@ export default function Clarisa() {
         </label>
 
         <label className="form__field">
-          <span>Imagen (flyer)</span>
+          <span>Imagen (flyer){editing ? ' — deja vacío para conservar la actual' : ''}</span>
           <input type="file" accept="image/*" onChange={onFile} />
         </label>
         {preview && <img className="form__preview" src={preview} alt="Vista previa" />}
@@ -252,9 +343,33 @@ export default function Clarisa() {
         {error && <p className="form__error">{error}</p>}
 
         <button type="submit" className="btn btn--primary form__submit" disabled={status === 'saving' || !isSupabaseConfigured}>
-          {status === 'saving' ? 'Publicando…' : 'Publicar evento'}
+          {status === 'saving' ? 'Guardando…' : editing ? 'Guardar cambios' : 'Publicar evento'}
         </button>
       </form>
+
+      {isSupabaseConfigured && (
+        <section className="admin-list">
+          <h2>Eventos publicados ({events.length})</h2>
+          {events.length === 0 ? (
+            <p className="clarisa__sub">Aún no hay eventos.</p>
+          ) : (
+            <ul>
+              {events.map((e) => (
+                <li key={e.id} className="admin-row">
+                  <div className="admin-row__info">
+                    <strong>{e.name}</strong>
+                    <span>{formatEventDate(e.startDate, e.endDate, e.allDay)}</span>
+                  </div>
+                  <div className="admin-row__actions">
+                    <button type="button" className="btn btn--ghost btn--sm" onClick={() => startEdit(e)}>Editar</button>
+                    <button type="button" className="btn btn--ghost btn--sm admin-row__del" onClick={() => remove(e)}>Borrar</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
     </div>
   )
 }

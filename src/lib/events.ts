@@ -118,3 +118,23 @@ export async function createEvent(event: NewEvent): Promise<void> {
   const { error } = await supabase.from('events').insert(eventToRow(event))
   if (error) throw new Error(`No se pudo publicar el evento: ${error.message}`)
 }
+
+/** Updates an existing event row. */
+export async function updateEvent(id: string, event: NewEvent): Promise<void> {
+  if (!supabase) throw new Error('Supabase no esta configurado.')
+  const { error } = await supabase.from('events').update(eventToRow(event)).eq('id', id)
+  if (error) throw new Error(`No se pudo actualizar el evento: ${error.message}`)
+}
+
+/** Deletes an event row (and its Storage image, if it lives in our bucket). */
+export async function deleteEvent(id: string, image?: string): Promise<void> {
+  if (!supabase) throw new Error('Supabase no esta configurado.')
+  const { error } = await supabase.from('events').delete().eq('id', id)
+  if (error) throw new Error(`No se pudo borrar el evento: ${error.message}`)
+
+  const marker = `/${EVENT_IMAGES_BUCKET}/`
+  if (image && image.includes(marker)) {
+    const path = image.split(marker)[1]
+    if (path) await supabase.storage.from(EVENT_IMAGES_BUCKET).remove([path])
+  }
+}
