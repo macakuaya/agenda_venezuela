@@ -1,0 +1,11 @@
+# Configuración de build para Netlify (sitio estático Vite).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Fallback SPA: cualquier ruta desconocida sirve index.html (los archivos
+# estáticos reales se sirven primero, así que los assets cargan bien).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
