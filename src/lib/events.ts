@@ -119,18 +119,36 @@ export async function createEvent(event: NewEvent): Promise<void> {
   if (error) throw new Error(`No se pudo publicar el evento: ${error.message}`)
 }
 
+const RLS_HINT =
+  'Revisa que hayas corrido supabase/edit-delete.sql en Supabase (permisos de edición/borrado).'
+
 /** Updates an existing event row. */
 export async function updateEvent(id: string, event: NewEvent): Promise<void> {
   if (!supabase) throw new Error('Supabase no esta configurado.')
-  const { error } = await supabase.from('events').update(eventToRow(event)).eq('id', id)
+  // .select() lets us detect when RLS silently blocked the write (0 rows).
+  const { data, error } = await supabase
+    .from('events')
+    .update(eventToRow(event))
+    .eq('id', id)
+    .select('id')
   if (error) throw new Error(`No se pudo actualizar el evento: ${error.message}`)
+  if (!data || data.length === 0) {
+    throw new Error(`No se guardaron los cambios. ${RLS_HINT}`)
+  }
 }
 
 /** Deletes an event row (and its Storage image, if it lives in our bucket). */
 export async function deleteEvent(id: string, image?: string): Promise<void> {
   if (!supabase) throw new Error('Supabase no esta configurado.')
-  const { error } = await supabase.from('events').delete().eq('id', id)
+  const { data, error } = await supabase
+    .from('events')
+    .delete()
+    .eq('id', id)
+    .select('id')
   if (error) throw new Error(`No se pudo borrar el evento: ${error.message}`)
+  if (!data || data.length === 0) {
+    throw new Error(`No se borró el evento. ${RLS_HINT}`)
+  }
 
   const marker = `/${EVENT_IMAGES_BUCKET}/`
   if (image && image.includes(marker)) {
