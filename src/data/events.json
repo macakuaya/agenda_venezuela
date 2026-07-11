@@ -29,6 +29,30 @@
     "note": "Campaña «Ayuda Humanitaria para Venezuela» (2da fase) de Gente Activa. Contacto: Juanjo (@genteactivabcn). Sin dirección fija; las direcciones de entrega están en el Instagram."
   },
   {
+    "id": "nits-latinas",
+    "image": "events/nits-latinas.jpg",
+    "startDate": "2026-07-11T15:00:00",
+    "endDate": "2026-07-11T23:59:00",
+    "name": "Nits Latinas: Juntos por Venezuela",
+    "venue": "Pati de la Seu del Districte de Nou Barris",
+    "address": "Plaça Major de Nou Barris, 1",
+    "city": "Barcelona",
+    "url": "https://www.instagram.com/p/DapYawKKpUg/?igsh=YnF4ZDExa3JldTh3",
+    "organizer": "Día de Brasil y Asocaven, con el Ajuntament de Barcelona (Districte de Nou Barris)",
+    "instagramUrl": "https://www.instagram.com/p/DapYawKKpUg/?igsh=YnF4ZDExa3JldTh3",
+    "lineup": [
+      "Ensamble de Cuatros de Barcelona",
+      "Orquesta Vozes",
+      "José Murguey",
+      "Falon Koch",
+      "Greco Pa",
+      "Jessica Soteldo",
+      "DJ Juan Carlos"
+    ],
+    "hours": "Sábado 15:00–24:00",
+    "note": "3ª edición · «De Barcelona pa' La Guaira». Entrada gratuita, aforo limitado. Patrocinan enviadinero.es, OM Oral Medicine y Next Cargo."
+  },
+  {
     "id": "juntos-por-venezuela",
     "image": "events/juntos-por-venezuela.jpg",
     "startDate": "2026-07-11T17:00:00",
