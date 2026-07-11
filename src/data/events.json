@@ -1,0 +1,40 @@
+[
+  {
+    "id": "watercolor-protea-2026",
+    "image": "events/watercolor.svg",
+    "startDate": "2026-01-26T14:00:00",
+    "endDate": "2026-01-27T17:00:00",
+    "name": "Taller de acuarela: edición Protea",
+    "venue": "Online · En vivo",
+    "city": "Caracas",
+    "url": "https://ejemplo.com/taller-acuarela"
+  },
+  {
+    "id": "light-to-night-2026",
+    "image": "events/lights.svg",
+    "startDate": "2026-02-14T19:00:00",
+    "name": "Light to Night: festival de luces",
+    "venue": "Parque Los Caobos",
+    "city": "Caracas",
+    "url": "https://ejemplo.com/light-to-night"
+  },
+  {
+    "id": "feria-gastronomica-2026",
+    "image": "events/food.svg",
+    "startDate": "2026-03-08T11:00:00",
+    "endDate": "2026-03-09T20:00:00",
+    "name": "Feria gastronómica venezolana",
+    "venue": "Plaza Alfredo Sadel",
+    "city": "Caracas",
+    "url": "https://ejemplo.com/feria-gastronomica"
+  },
+  {
+    "id": "concierto-sinfonica-2026",
+    "image": "events/music.svg",
+    "startDate": "2026-04-20T18:30:00",
+    "name": "Gala de la Orquesta Sinfónica",
+    "venue": "Teatro Teresa Carreño",
+    "city": "Caracas",
+    "url": "https://ejemplo.com/gala-sinfonica"
+  }
+]

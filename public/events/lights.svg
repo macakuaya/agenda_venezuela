@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1035"/>
+      <stop offset="1" stop-color="#3a1d6e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g opacity="0.9">
+    <rect x="120" y="120" width="80" height="390" fill="#ff5fa2"/>
+    <rect x="230" y="180" width="80" height="330" fill="#4fd1ff"/>
+    <rect x="340" y="90" width="80" height="420" fill="#ffd166"/>
+    <rect x="450" y="200" width="80" height="310" fill="#8f5bff"/>
+    <rect x="560" y="150" width="80" height="360" fill="#43e0a0"/>
+  </g>
+  <text x="700" y="330" font-family="Helvetica, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Light to Night</text>
+</svg>

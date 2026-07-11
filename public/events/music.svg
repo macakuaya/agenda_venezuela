@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b132b"/>
+      <stop offset="1" stop-color="#1c2541"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g stroke="#c9a227" stroke-width="10" fill="none" opacity="0.9">
+    <path d="M120 480 L120 220"/>
+    <path d="M120 220 C120 180 300 180 300 220 L300 480"/>
+    <circle cx="120" cy="490" r="26" fill="#c9a227" stroke="none"/>
+    <circle cx="300" cy="490" r="26" fill="#c9a227" stroke="none"/>
+  </g>
+  <text x="420" y="330" font-family="Helvetica, Arial, sans-serif" font-size="66" font-weight="700" fill="#f2e9d0">Gala Sinfonica</text>
+</svg>
