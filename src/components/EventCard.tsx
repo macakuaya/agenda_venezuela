@@ -16,10 +16,8 @@ export default function EventCard({ event }: Props) {
     ? event.image
     : `${import.meta.env.BASE_URL}${event.image.replace(/^\//, '')}`
 
-  // Location line: "<lugar o calle> · <ciudad>", omitting whatever is missing.
-  const location = [event.venue || event.address, event.city]
-    .filter(Boolean)
-    .join(' · ')
+  // Location: "<ciudad> · <lugar>" on one line, street address below (if any).
+  const location = [event.city, event.venue].filter(Boolean).join(' · ')
 
   const content = (
     <>
@@ -32,6 +30,7 @@ export default function EventCard({ event }: Props) {
         </p>
         <h2 className="card__title">{event.name}</h2>
         {location && <p className="card__loc">{location}</p>}
+        {event.address && <p className="card__loc">{event.address}</p>}
       </div>
     </>
   )
