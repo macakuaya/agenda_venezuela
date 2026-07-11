@@ -1,28 +1,86 @@
-# Agenda Venezuela
+<div align="center">
 
-Agenda de eventos optimizada para mobile. Muestra una lista de tarjetas de eventos que puedes
-guardar ("Me interesa") y compartir. Sitio estático, sin backend.
+# 🌸 Agenda Venezuela 🌸
 
-## Tecnología
-
-- React 19 + TypeScript + Vite
-- Routing con `react-router-dom` (HashRouter, compatible con GitHub Pages)
-- Datos estáticos en `src/data/events.json`
-- "Me interesa" persiste en `localStorage` (por dispositivo)
-- Deploy automático a GitHub Pages vía GitHub Actions
-
-## Desarrollo
-
-```bash
-npm install
-npm run dev      # servidor local
-npm run build    # build de producción a dist/
-npm run preview  # previsualizar el build
+```
+        ✿ ❀ ✿ ❀ ✿ ❀ ✿ ❀ ✿ ❀ ✿ ❀ ✿ ❀
+       ╔════════════════════════════════╗
+       ║       AGENDA  VENEZUELA         ║
+       ╚═══════════════╤════════════════╝
+                       │
+          /\___/\      │
+     ❀   ( o   o )     │       ✿
+     ✿   (  =^=  )     │
+          )       (────╯
+    🌷   (         )
+          )  |   |  (          ❀
+     ✿   (___|___|___)      ❀   ✿
+       ~ ✿ ~ ❀ ~ ✿ ~ ❀ ~ ✿ ~ ❀ ~ ✿ ~
 ```
 
-## Agregar / editar eventos
+**Los eventos que están pasando en Venezuela, en un solo lugar.**
+Guárdalos, compártelos y no te pierdas ni uno. 🎉
 
-Edita `src/data/events.json`. Cada evento:
+</div>
+
+---
+
+## 🐱 ¿Qué es esto? (explicado como si tuvieras 5 años)
+
+Imagínate una **cartelera mágica** en tu teléfono. Cada evento (un concierto,
+un taller, una feria) es una **tarjeta** con una foto bonita, la fecha, el nombre
+y dónde es. Si algo te gusta, le das a la **estrellita** ⭐ ("Me interesa") y se
+guarda para ti. Y si quieres avisarle a un pana, le das a **compartir** 📤 y le
+mandas el link. ¡Así de fácil!
+
+---
+
+## ✨ ¿Qué puede hacer? (la funcionalidad)
+
+- 🏠 **Inicio**: una lista de tarjetas de eventos, una debajo de la otra.
+- 🖼️ **Tarjetas**: cada una tiene imagen (tamaño ideal para redes), fecha, nombre y dirección.
+- ⭐ **Me interesa**: guarda tus eventos favoritos **en tu propio teléfono** (nadie más los ve).
+- 📤 **Compartir**: manda el evento por WhatsApp, Instagram, donde quieras.
+- ➕ **Enviar evento**: botón arriba a la derecha para que la gente proponga sus eventos.
+- 📱 **Responsive**: se ve genial en el teléfono; en computadora las tarjetas no pasan de 500px de ancho.
+- 🎨 **Design system** (`/#/design-system`): una página secreta solo para ti donde puedes
+  cambiar colores, tipografía y estilos en vivo, sin tocar código.
+
+---
+
+## 🧩 ¿Con qué está hecho? (la tecnología, sin complicaciones)
+
+Piensa en la app como una **casa de LEGO**. Cada pieza tiene su función:
+
+| Pieza | Qué es | Para qué sirve (en criollo) |
+|-------|--------|------------------------------|
+| ⚛️ **React** | La caja de LEGO | Arma la pantalla con piezas reutilizables (las tarjetas, los botones). |
+| 🔤 **TypeScript** | Un corrector ortográfico | Avisa los errores **antes** de que rompan algo. |
+| ⚡ **Vite** | El motor | Hace que todo cargue rapidísimo mientras se construye. |
+| 🧭 **React Router** | El mapa | Lleva del Inicio a la página del Design System. |
+| 📄 **events.json** | Un cuaderno | Ahí se escriben los eventos. Sin base de datos, sin complicaciones. |
+| 💾 **localStorage** | La memoria del teléfono | Recuerda qué eventos marcaste con la estrellita. |
+| 🚀 **GitHub Pages** | La casa donde vive | Publica la app gratis en internet para compartir el link. |
+
+> **Sin servidores, sin backend, sin costos.** Todo es un sitio estático: archivos que
+> el navegador abre directo. Por eso es fácil de publicar y de mantener.
+
+---
+
+## 🛠️ Para desarrollar
+
+```bash
+npm install      # instala las piezas
+npm run dev      # abre la app en modo local
+npm run build    # arma la versión final (carpeta dist/)
+npm run preview  # revisa la versión final
+```
+
+---
+
+## 📝 Agregar o editar eventos
+
+Edita `src/data/events.json`. Cada evento se ve así:
 
 ```json
 {
@@ -37,29 +95,40 @@ Edita `src/data/events.json`. Cada evento:
 }
 ```
 
-- `image`: coloca el archivo en `public/events/` (ideal 1200x630, relación 1.91:1).
+- 🖼️ `image`: pon el archivo en `public/events/` (ideal 1200×630, relación 1.91:1).
 - `endDate` y `url` son opcionales.
+- Para cambiar a dónde lleva el botón **"Enviar evento"** (por ejemplo, un Google Form),
+  edita `SUBMIT_EVENT_URL` en `src/config.ts`.
 
-Para cambiar el destino del botón "Enviar evento" (ej. un Google Form), edita
-`SUBMIT_EVENT_URL` en `src/config.ts`.
+---
 
-## Design system
+## 🎨 Design system (tu página privada)
 
-Ruta privada (no enlazada de forma prominente): `/#/design-system`. Permite ajustar los tokens
-(colores, tipografía, formas, espaciado) en vivo. Los cambios se guardan en `localStorage`.
-Para hacerlos permanentes, usa "Exportar CSS" y pega el resultado en el bloque `:root` de
-`src/index.css`.
+Entra a `/#/design-system` (enlace discreto en el pie de página). Ahí ajustas los
+**tokens** (colores, tipografía, formas, espaciado) y ves los cambios al instante.
+Se guardan en tu dispositivo; para hacerlos permanentes usa **"Exportar CSS"** y
+pega el resultado en el bloque `:root` de `src/index.css`.
 
-## Deploy a GitHub Pages
+Estilo inicial: **botones negros sólidos + Helvetica** (fácil de cambiar luego).
 
-El workflow `.github/workflows/deploy.yml` construye y publica en cada push a `main`.
+---
 
-Configuración única en GitHub:
+## 🚀 Publicar en GitHub Pages
 
-1. Ve a **Settings → Pages**.
-2. En **Build and deployment → Source**, elige **GitHub Actions**.
+Cada vez que se hace push a `main`, el workflow `.github/workflows/deploy.yml`
+compila y publica la app automáticamente.
 
-La URL pública será: `https://macakuaya.github.io/agenda_venezuela/`
+Configuración única (ya hecha): **Settings → Pages → Source: GitHub Actions**.
 
-> Nota: el `base` en `vite.config.ts` (`/agenda_venezuela/`) debe coincidir con el nombre del
-> repositorio para que los assets carguen correctamente.
+🌍 URL pública: **https://macakuaya.github.io/agenda_venezuela/**
+
+> El `base` en `vite.config.ts` (`/agenda_venezuela/`) debe coincidir con el nombre
+> del repositorio para que carguen bien las imágenes y estilos.
+
+---
+
+<div align="center">
+
+Hecho con 🐈 y 🌷 para los venezolanos.
+
+</div>
