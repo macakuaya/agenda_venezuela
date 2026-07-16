@@ -25,7 +25,8 @@ Imagínate una **cartelera** en tu teléfono. Cada evento (un concierto, un ta
 ## **✨ ¿Qué puede hacer? (la funcionalidad)**
 
 - 🏠 **Inicio**: una lista de tarjetas de eventos, una debajo de la otra.
-- 🖼️ **Tarjetas**: cada una tiene imagen (tamaño ideal para redes), fecha, nombre y dirección.
+- 🖼️ **Tarjetas expandibles**: toca una tarjeta para ver organizadores, necesidades, beneficiarios, contacto y enlaces.
+- 📍 **Filtro por ciudad**: encuentra eventos de Barcelona, Mataró o cualquier otra ciudad publicada.
 - ⭐ **Me interesa**: guarda tus eventos favoritos **en tu propio teléfono** (nadie más los ve).
 - 📤 **Compartir**: manda el evento por WhatsApp, Instagram, donde quieras.
 - ➕ **Enviar evento**: botón arriba a la derecha para que la gente proponga sus eventos.
@@ -71,13 +72,21 @@ Edita `src/data/events.json`. Cada evento se ve así:
   "name": "Nombre del evento",
   "venue": "Lugar",
   "city": "Caracas",
-  "url": "https://enlace-opcional.com"
+  "url": "https://enlace-opcional.com",
+  "organizer": "Quién organiza",
+  "beneficiary": "A quién beneficia",
+  "needs": "Qué necesita",
+  "contactPhone": "+34 600 00 00 00",
+  "whatsappUrl": "https://chat.whatsapp.com/..."
 }
 ```
 
 - 🖼️ `image`: pon el archivo en `public/events/` (ideal 1200×630, relación 1.91:1).
 - `endDate` y `url` son opcionales.
 - Para cambiar a dónde lleva el botón **"Enviar evento"** (por ejemplo, un Google Form), edita `SUBMIT_EVENT_URL` en `src/config.ts`.
+- El panel `/#/clarisa` permite editar esos mismos campos sin tocar el JSON.
+- El texto y el enlace del bloque comunitario se editan desde `/#/clarisa`. En
+  proyectos Supabase ya existentes, ejecuta una vez `supabase/site-content.sql`.
 
 ## **🎨 Design system (tu página privada)**
 

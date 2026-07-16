@@ -6,6 +6,14 @@ export const BRAND_NAME = 'Agenda Venezuela'
 // "Enviar evento" destination (JotForm).
 export const SUBMIT_EVENT_URL = 'https://form.jotform.com/261915305293053'
 
+// Bloque comunitario al final de la agenda. Edita estas tres líneas para
+// cambiar el texto o el grupo sin tener que tocar los componentes.
+export const COMMUNITY_INVITE_TEXT =
+  'Esta es una iniciativa hecha a partir del grupo Barcelona Earthquake Collaboration. Si quieres unirte a nuestro grupo de WhatsApp para recibir noticias verificadas de próximos eventos y noticias solidarias sobre Venezuela,'
+export const COMMUNITY_INVITE_LINK_LABEL = 'únete aquí'
+export const COMMUNITY_WHATSAPP_URL =
+  'https://chat.whatsapp.com/Co0WZGboWje6BdWkh6ir8W'
+
 // Locale used to format dates in Spanish.
 export const LOCALE = 'es-VE'
 

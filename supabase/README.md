@@ -5,7 +5,8 @@ los lee al cargar. Si Supabase no está configurado o falla, la app usa como
 **respaldo** los eventos de `src/data/events.json`.
 
 Clarisa (u otra persona) publica eventos desde la página oculta `/#/clarisa`, **sin
-GitHub ni PRs**, y aparecen al instante en la agenda.
+GitHub ni PRs**, y aparecen al instante en la agenda. Desde el mismo panel también
+puede editar el texto comunitario que aparece al final de la página.
 
 ## Configurar Supabase (una sola vez)
 
@@ -15,6 +16,7 @@ GitHub ni PRs**, y aparecen al instante en la agenda.
    - la tabla `events`,
    - las reglas de seguridad (RLS): cualquiera puede **leer** y **crear**, pero
      **nadie** puede **editar/borrar** desde la web,
+   - la tabla `site_content` para el texto comunitario,
    - el bucket público `event-images` para las fotos.
 3. Repite con [`seed.sql`](seed.sql) para cargar los 5 eventos actuales.
 4. Ve a **Settings > API** y copia:
@@ -30,6 +32,9 @@ GitHub ni PRs**, y aparecen al instante en la agenda.
    `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
 6. Haz commit/push. Al desplegar, la agenda leerá los eventos desde Supabase.
 
+Si el proyecto ya estaba configurado antes de incorporar el texto editable,
+ejecuta una vez [`site-content.sql`](site-content.sql) en el SQL Editor.
+
 ## Panel de Clarisa (`/#/clarisa`)
 
 - Página oculta (no enlazada), **sin login**, protegida por un **PIN**.
@@ -37,6 +42,8 @@ GitHub ni PRs**, y aparecen al instante en la agenda.
   `venezuela2026`. **Cámbialo** y dáselo a Clarisa.
 - Clarisa: entra a `.../#/clarisa`, escribe el PIN, llena el formulario, sube la
   imagen del evento y pulsa **Publicar evento**. Listo, sale al instante.
+- El bloque **Texto del final** permite cambiar la invitación, la frase enlazada y
+  el enlace de WhatsApp sin editar código.
 - La imagen se **comprime en el navegador** antes de subirse (ideal: horizontal
   1200x630).
 

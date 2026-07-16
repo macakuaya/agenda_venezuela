@@ -3,6 +3,12 @@ import { Link } from 'react-router-dom'
 import { CLARISA_PIN } from '../config'
 import { isSupabaseConfigured } from '../lib/supabase'
 import {
+  DEFAULT_COMMUNITY_CONTENT,
+  fetchCommunityContent,
+  saveCommunityContent,
+  type CommunityContent,
+} from '../lib/content'
+import {
   createEvent,
   updateEvent,
   deleteEvent,
@@ -80,6 +86,7 @@ const emptyForm = {
 
 type FormState = typeof emptyForm
 type Status = 'idle' | 'saving' | 'done' | 'error'
+type ContentStatus = 'idle' | 'saving' | 'done' | 'error'
 
 // Turns a stored event back into the editable form fields.
 function eventToForm(e: EventItem): FormState {
@@ -123,13 +130,25 @@ export default function Clarisa() {
   const [events, setEvents] = useState<EventItem[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [existingImage, setExistingImage] = useState<string | undefined>()
+  const [community, setCommunity] = useState<CommunityContent>(
+    DEFAULT_COMMUNITY_CONTENT,
+  )
+  const [contentStatus, setContentStatus] = useState<ContentStatus>('idle')
+  const [contentError, setContentError] = useState('')
 
   const loadEvents = () => {
     fetchEvents().then((rows) => rows && setEvents(rows))
   }
 
+  const loadCommunity = () => {
+    fetchCommunityContent().then((content) => content && setCommunity(content))
+  }
+
   useEffect(() => {
-    if (unlocked && isSupabaseConfigured) loadEvents()
+    if (unlocked && isSupabaseConfigured) {
+      loadEvents()
+      loadCommunity()
+    }
   }, [unlocked])
 
   if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />
@@ -176,6 +195,41 @@ export default function Clarisa() {
 
   const buildDate = (day: string, time: string) =>
     f.allDay || !time ? day : `${day}T${time}:00`
+
+  const saveCommunity = async (e: FormEvent) => {
+    e.preventDefault()
+    setContentError('')
+
+    if (!community.text.trim() || !community.linkLabel.trim()) {
+      setContentStatus('error')
+      setContentError('El texto y la frase del enlace no pueden quedar vacíos.')
+      return
+    }
+
+    try {
+      const url = new URL(community.whatsappUrl)
+      if (!['http:', 'https:'].includes(url.protocol)) throw new Error()
+    } catch {
+      setContentStatus('error')
+      setContentError('Escribe un enlace de WhatsApp válido.')
+      return
+    }
+
+    setContentStatus('saving')
+    try {
+      await saveCommunityContent({
+        text: community.text.trim(),
+        linkLabel: community.linkLabel.trim(),
+        whatsappUrl: community.whatsappUrl.trim(),
+      })
+      setContentStatus('done')
+    } catch (err) {
+      setContentStatus('error')
+      setContentError(
+        err instanceof Error ? err.message : 'No se pudo guardar el texto.',
+      )
+    }
+  }
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -247,6 +301,68 @@ export default function Clarisa() {
       {status === 'done' && (
         <p className="form__ok">¡Guardado! 🎉 Ya está en la agenda.</p>
       )}
+
+      <section className="content-editor" aria-labelledby="content-editor-title">
+        <div className="content-editor__heading">
+          <span className="content-editor__eyebrow">Contenido de la página</span>
+          <h2 id="content-editor-title">Texto del final</h2>
+          <p>
+            Cambia la invitación y el enlace que aparecen debajo de los eventos.
+          </p>
+        </div>
+        <form className="form" onSubmit={saveCommunity}>
+          <label className="form__field">
+            <span>Texto</span>
+            <textarea
+              className="input content-editor__textarea"
+              value={community.text}
+              onChange={(event) =>
+                setCommunity((current) => ({
+                  ...current,
+                  text: event.target.value,
+                }))}
+            />
+          </label>
+          <div className="form__row">
+            <label className="form__field">
+              <span>Frase enlazada</span>
+              <input
+                className="input"
+                value={community.linkLabel}
+                onChange={(event) =>
+                  setCommunity((current) => ({
+                    ...current,
+                    linkLabel: event.target.value,
+                  }))}
+              />
+            </label>
+            <label className="form__field">
+              <span>Grupo de WhatsApp</span>
+              <input
+                className="input"
+                type="url"
+                value={community.whatsappUrl}
+                onChange={(event) =>
+                  setCommunity((current) => ({
+                    ...current,
+                    whatsappUrl: event.target.value,
+                  }))}
+              />
+            </label>
+          </div>
+          {contentError && <p className="form__error">{contentError}</p>}
+          {contentStatus === 'done' && (
+            <p className="form__ok">Texto actualizado.</p>
+          )}
+          <button
+            type="submit"
+            className="btn btn--primary content-editor__submit"
+            disabled={contentStatus === 'saving' || !isSupabaseConfigured}
+          >
+            {contentStatus === 'saving' ? 'Guardando…' : 'Guardar texto'}
+          </button>
+        </form>
+      </section>
 
       {editing && (
         <div className="form__editing">
