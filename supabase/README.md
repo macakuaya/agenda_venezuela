@@ -14,32 +14,32 @@ puede editar el texto comunitario que aparece al final de la página.
 2. Abre **SQL Editor > New query**, pega el contenido de [`schema.sql`](schema.sql)
    y dale **Run**. Esto crea:
    - la tabla `events`,
-   - las reglas de seguridad (RLS): cualquiera puede **leer** y **crear**, pero
-     **nadie** puede **editar/borrar** desde la web,
+   - las reglas de seguridad (RLS): el navegador puede **leer**, pero no puede
+     crear, editar ni borrar directamente,
    - la tabla `site_content` para el texto comunitario,
    - el bucket público `event-images` para las fotos.
-3. Repite con [`seed.sql`](seed.sql) para cargar los 5 eventos actuales.
+3. Para una instalación nueva puedes ejecutar [`seed.sql`](seed.sql), o importar
+   el respaldo completo con `npm run migrate:backup -- /ruta/al/respaldo`.
 4. Ve a **Settings > API** y copia:
    - **Project URL** (ej. `https://xxxx.supabase.co`)
-   - **anon public** key (empieza con `eyJ...`)
-5. Pégalos en `src/config.ts`:
-   ```ts
-   export const SUPABASE_URL = 'https://xxxx.supabase.co'
-   export const SUPABASE_ANON_KEY = 'eyJ...'
-   ```
-   Son valores **públicos** (la anon key está pensada para ir en el navegador; la
-   seguridad la dan las reglas RLS). También puedes usar las variables de entorno
-   `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
-6. Haz commit/push. Al desplegar, la agenda leerá los eventos desde Supabase.
+   - **anon public** key,
+   - **service_role** key.
+5. Configura en Netlify:
+   - `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`, que son públicos y se usan
+     únicamente para leer,
+   - `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`, disponibles solo para la
+     Netlify Function,
+   - `CLARISA_PIN`, un secreto largo que compartirás con Clarisa.
+6. Nunca pongas `SUPABASE_SERVICE_ROLE_KEY` ni `CLARISA_PIN` en variables `VITE_*`,
+   el repositorio o el código del navegador.
 
 Si el proyecto ya estaba configurado antes de incorporar el texto editable,
 ejecuta una vez [`site-content.sql`](site-content.sql) en el SQL Editor.
 
 ## Panel de Clarisa (`/#/clarisa`)
 
-- Página oculta (no enlazada), **sin login**, protegida por un **PIN**.
-- El PIN se configura en `CLARISA_PIN` (`src/config.ts`), por defecto
-  `venezuela2026`. **Cámbialo** y dáselo a Clarisa.
+- Página oculta (no enlazada), protegida por un **PIN verificado en el servidor**.
+- El PIN se configura como variable privada `CLARISA_PIN` en Netlify.
 - Clarisa: entra a `.../#/clarisa`, escribe el PIN, llena el formulario, sube la
   imagen del evento y pulsa **Publicar evento**. Listo, sale al instante.
 - El bloque **Texto del final** permite cambiar la invitación, la frase enlazada y
@@ -47,17 +47,12 @@ ejecuta una vez [`site-content.sql`](site-content.sql) en el SQL Editor.
 - La imagen se **comprime en el navegador** antes de subirse (ideal: horizontal
   1200x630).
 
-### Qué puede y qué no
-
-- **Crear** eventos: sí, desde `/clarisa`.
-- **Editar / borrar**: por seguridad no se puede desde la web. Se hace desde el
-  panel de Supabase (**Table editor > events**), o desde **Storage** para las
-  imágenes.
+El panel permite crear, editar y borrar eventos, subir imágenes y actualizar el
+texto comunitario. Todas esas operaciones pasan por `netlify/functions/admin.mjs`.
 
 ## Notas de seguridad
 
-- El PIN es un freno anti-spam del lado del cliente (viaja en el código), no una
-  barrera criptográfica. La protección "dura" es la RLS: aunque alguien encuentre
-  la URL o el código, **no puede borrar ni editar** la base.
-- Si algún día quieres un PIN inquebrantable o permitir editar/borrar con
-  seguridad, se añade login (Supabase Auth) o una Edge Function.
+- La llave pública no tiene políticas de escritura.
+- La `service_role` existe únicamente en el entorno de la Netlify Function.
+- Para cerrar las escrituras públicas de un proyecto antiguo ejecuta
+  [`lock-down-writes.sql`](lock-down-writes.sql).

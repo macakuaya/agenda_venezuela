@@ -43,12 +43,13 @@ Piensa en la app como una **casa de LEGO**. Cada pieza tiene su función:
 | 🔤 **TypeScript** | Lenguaje de programación con tipos | Avisa los errores **antes** de que rompan algo. |
 | ⚡ **Vite** | Herramienta de build y servidor de desarrollo | Hace que todo cargue rapidísimo mientras se construye. |
 | 🧭 **React Router** | Enrutador de páginas | Lleva del Inicio a la página del Design System. |
-| 📄 **events.json** | Archivo de datos | Ahí se escriben los eventos. Sin base de datos, sin complicaciones. |
+| 🗄️ **Supabase** | Base de datos y archivos | Guarda los eventos, el texto editable y las imágenes. |
+| 🔐 **Netlify Function** | Backend privado del panel | Verifica el PIN en el servidor y realiza las escrituras sin exponer credenciales. |
 | 💾 **localStorage** | Almacenamiento del navegador | Recuerda qué eventos marcaste con la estrellita. |
-| 🚀 **GitHub Pages** | Hosting estático gratuito | Publica la app gratis en internet para compartir el link. |
+| 🚀 **Netlify** | Hosting y funciones | Publica la web y ejecuta el backend privado del panel. |
 
-> **Sin servidores, sin backend, sin costos.** Todo es un sitio estático: archivos que el navegador abre directo. Por eso es fácil de publicar y de mantener.
-> 
+La agenda utiliza los planes gratuitos de Netlify y Supabase. `events.json`
+queda como respaldo de lectura si la base de datos no está disponible.
 
 ## **🛠️ Para desarrollar**
 
@@ -58,6 +59,9 @@ npm run dev      # abre la app en modo local
 npm run build    # arma la versión final (carpeta dist/)
 npm run preview  # revisa la versión final
 ```
+
+Para probar también la función de administración usa `netlify dev` y configura
+las variables descritas en [`supabase/README.md`](supabase/README.md).
 
 ## **📝 Agregar o editar eventos**
 
@@ -87,6 +91,8 @@ Edita `src/data/events.json`. Cada evento se ve así:
 - El panel `/#/clarisa` permite editar esos mismos campos sin tocar el JSON.
 - El texto y el enlace del bloque comunitario se editan desde `/#/clarisa`. En
   proyectos Supabase ya existentes, ejecuta una vez `supabase/site-content.sql`.
+- El PIN se guarda como variable privada `CLARISA_PIN` en Netlify; nunca se
+  incluye en el JavaScript que recibe el navegador.
 
 ## **🎨 Design system (tu página privada)**
 
@@ -94,15 +100,18 @@ Entra a `/#/design-system` (enlace discreto en el pie de página). Ahí ajusta
 
 Estilo inicial: **botones negros sólidos + Helvetica** (fácil de cambiar luego).
 
-## **🚀 Publicar en GitHub Pages**
+## **🚀 Publicar en Netlify**
 
-Cada vez que se hace push a `main`, el workflow `.github/workflows/deploy.yml` compila y publica la app automáticamente.
+Conecta el repositorio desde Netlify. La configuración de build vive en
+`netlify.toml`: ejecuta `npm run build`, publica `dist/` y empaqueta la función
+de `netlify/functions/`.
 
-Configuración única (ya hecha): **Settings → Pages → Source: GitHub Actions**.
+Antes del primer despliegue configura estas variables:
 
-🌍 URL pública: **https://macakuaya.github.io/AgendaVenezuela/**
-
-> El `base` en `vite.config.ts` está en `'./'` (rutas relativas), así que la app funciona bajo cualquier nombre de repositorio sin tener que tocar la configuración.
-> 
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` — secreta, solo para la función.
+- `CLARISA_PIN` — secreto largo compartido con la persona administradora.
 
 Hecho con 🐈 y 🌷 para los venezolanos.

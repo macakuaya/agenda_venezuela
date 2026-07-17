@@ -1,6 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { CLARISA_PIN } from '../config'
+import {
+  clearAdminPin,
+  getStoredAdminPin,
+  storeAdminPin,
+  verifyAdminPin,
+} from '../lib/admin'
 import { isSupabaseConfigured } from '../lib/supabase'
 import {
   DEFAULT_COMMUNITY_CONTENT,
@@ -20,19 +25,26 @@ import { resizeImage } from '../lib/image'
 import { formatEventDate } from '../lib/date'
 import type { EventItem } from '../types'
 
-const PIN_KEY = 'agenda-vzla:clarisa-unlocked'
-
 function PinGate({ onUnlock }: { onUnlock: () => void }) {
   const [pin, setPin] = useState('')
-  const [error, setError] = useState(false)
+  const [error, setError] = useState('')
+  const [checking, setChecking] = useState(false)
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
-    if (pin.trim() === CLARISA_PIN) {
-      sessionStorage.setItem(PIN_KEY, 'true')
+    const candidate = pin.trim()
+    if (!candidate) return
+
+    setChecking(true)
+    setError('')
+    try {
+      await verifyAdminPin(candidate)
+      storeAdminPin(candidate)
       onUnlock()
-    } else {
-      setError(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo verificar el PIN.')
+    } finally {
+      setChecking(false)
     }
   }
 
@@ -48,12 +60,14 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
           value={pin}
           onChange={(e) => {
             setPin(e.target.value)
-            setError(false)
+            setError('')
           }}
           autoFocus
         />
-        {error && <p className="form__error">PIN incorrecto.</p>}
-        <button type="submit" className="btn btn--primary">Entrar</button>
+        {error && <p className="form__error">{error}</p>}
+        <button type="submit" className="btn btn--primary" disabled={checking}>
+          {checking ? 'Comprobando…' : 'Entrar'}
+        </button>
         <Link to="/" className="clarisa__back">← Volver a la agenda</Link>
       </form>
     </div>
@@ -118,9 +132,8 @@ function eventToForm(e: EventItem): FormState {
 }
 
 export default function Clarisa() {
-  const [unlocked, setUnlocked] = useState(
-    () => sessionStorage.getItem(PIN_KEY) === 'true',
-  )
+  const [unlocked, setUnlocked] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
   const [f, setF] = useState<FormState>({ ...emptyForm })
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -145,11 +158,32 @@ export default function Clarisa() {
   }
 
   useEffect(() => {
+    const storedPin = getStoredAdminPin()
+    if (!storedPin) {
+      setCheckingSession(false)
+      return
+    }
+
+    verifyAdminPin(storedPin)
+      .then(() => setUnlocked(true))
+      .catch(() => clearAdminPin())
+      .finally(() => setCheckingSession(false))
+  }, [])
+
+  useEffect(() => {
     if (unlocked && isSupabaseConfigured) {
       loadEvents()
       loadCommunity()
     }
   }, [unlocked])
+
+  if (checkingSession) {
+    return (
+      <div className="clarisa clarisa--gate">
+        <p className="clarisa__sub">Comprobando la sesión…</p>
+      </div>
+    )
+  }
 
   if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />
 

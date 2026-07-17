@@ -22,14 +22,9 @@ export const LOCALE = 'es-VE'
 // la seguridad la dan las reglas RLS). Pega aqui los tuyos de Supabase
 // (Settings > API). Tambien se pueden pasar por variables de entorno VITE_*.
 export const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL ?? 'https://chvagaaisaavacofjzyl.supabase.co'
+  import.meta.env.VITE_SUPABASE_URL ?? ''
 export const SUPABASE_ANON_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ??
-  'sb_publishable_VyiuIIvdU6XRmfH73SE-rg_AnrhEmJe'
+  import.meta.env.VITE_SUPABASE_ANON_KEY ?? ''
 
 // Nombre del bucket de Storage donde se suben las imagenes de eventos.
 export const EVENT_IMAGES_BUCKET = 'event-images'
-
-// PIN para entrar a /clarisa (freno anti-spam del lado del cliente).
-// Cambialo por el que le des a Clarisa.
-export const CLARISA_PIN = import.meta.env.VITE_CLARISA_PIN ?? 'venezuela2026'

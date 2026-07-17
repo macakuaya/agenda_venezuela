@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase'
-import { EVENT_IMAGES_BUCKET } from '../config'
+import { adminRequest, blobToBase64 } from './admin'
 import type { EventItem } from '../types'
 
 // Shape of a row in the Supabase `events` table (snake_case).
@@ -102,39 +102,28 @@ function eventToRow(e: NewEvent) {
 
 /** Uploads an image blob to Storage and returns its public URL. */
 export async function uploadEventImage(file: Blob, ext = 'jpg'): Promise<string> {
-  if (!supabase) throw new Error('Supabase no esta configurado.')
-  const name = `${crypto.randomUUID()}.${ext}`
-  const { error } = await supabase.storage
-    .from(EVENT_IMAGES_BUCKET)
-    .upload(name, file, { contentType: 'image/jpeg', upsert: false })
-  if (error) throw new Error(`No se pudo subir la imagen: ${error.message}`)
-  const { data } = supabase.storage.from(EVENT_IMAGES_BUCKET).getPublicUrl(name)
-  return data.publicUrl
+  if (ext !== 'jpg') throw new Error('La imagen debe estar en formato JPEG.')
+  const result = await adminRequest('uploadImage', {
+    file: {
+      mimeType: 'image/jpeg',
+      base64: await blobToBase64(file),
+    },
+  })
+  if (!result.imageUrl) throw new Error('No se pudo subir la imagen.')
+  return result.imageUrl
 }
 
 /** Inserts a new event row. */
 export async function createEvent(event: NewEvent): Promise<void> {
-  if (!supabase) throw new Error('Supabase no esta configurado.')
-  const { error } = await supabase.from('events').insert(eventToRow(event))
-  if (error) throw new Error(`No se pudo publicar el evento: ${error.message}`)
+  await adminRequest('createEvent', { event: eventToRow(event) })
 }
 
 /** Updates an existing event row. */
 export async function updateEvent(id: string, event: NewEvent): Promise<void> {
-  if (!supabase) throw new Error('Supabase no esta configurado.')
-  const { error } = await supabase.from('events').update(eventToRow(event)).eq('id', id)
-  if (error) throw new Error(`No se pudo actualizar el evento: ${error.message}`)
+  await adminRequest('updateEvent', { id, event: eventToRow(event) })
 }
 
 /** Deletes an event row (and its Storage image, if it lives in our bucket). */
 export async function deleteEvent(id: string, image?: string): Promise<void> {
-  if (!supabase) throw new Error('Supabase no esta configurado.')
-  const { error } = await supabase.from('events').delete().eq('id', id)
-  if (error) throw new Error(`No se pudo borrar el evento: ${error.message}`)
-
-  const marker = `/${EVENT_IMAGES_BUCKET}/`
-  if (image && image.includes(marker)) {
-    const path = image.split(marker)[1]
-    if (path) await supabase.storage.from(EVENT_IMAGES_BUCKET).remove([path])
-  }
+  await adminRequest('deleteEvent', { id, image })
 }

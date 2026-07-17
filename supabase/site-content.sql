@@ -31,9 +31,4 @@ create policy "public read site content" on public.site_content
   for select using (true);
 
 drop policy if exists "anyone insert site content" on public.site_content;
-create policy "anyone insert site content" on public.site_content
-  for insert with check (true);
-
 drop policy if exists "anyone update site content" on public.site_content;
-create policy "anyone update site content" on public.site_content
-  for update using (true) with check (true);

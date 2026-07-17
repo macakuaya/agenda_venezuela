@@ -4,6 +4,7 @@ import {
   COMMUNITY_WHATSAPP_URL,
 } from '../config'
 import { isSupabaseConfigured, supabase } from './supabase'
+import { adminRequest } from './admin'
 
 export interface CommunityContent {
   text: string
@@ -43,19 +44,5 @@ export async function fetchCommunityContent(): Promise<CommunityContent | null> 
 }
 
 export async function saveCommunityContent(content: CommunityContent): Promise<void> {
-  if (!supabase) throw new Error('Supabase no está configurado.')
-
-  const { error } = await supabase.from('site_content').upsert({
-    id: 'community',
-    community_text: content.text,
-    community_link_label: content.linkLabel,
-    community_whatsapp_url: content.whatsappUrl,
-    updated_at: new Date().toISOString(),
-  })
-
-  if (error) {
-    throw new Error(
-      'No se pudo guardar el texto. Comprueba que ejecutaste supabase/site-content.sql.',
-    )
-  }
+  await adminRequest('saveCommunity', { content })
 }
